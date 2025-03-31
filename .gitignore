@@ -1,0 +1,46 @@
+# Fichiers systèmes
+.DS_Store
+Thumbs.db
+
+# Logs & erreurs
+*.log
+error_log
+
+# Cache / fichiers temporaires
+cache/
+tmp/
+*.tmp
+*.bak
+
+# Configuration locale
+.env
+.env.local
+config.php
+
+# Uploads utilisateurs
+uploads/
+data/cache_*
+
+# Fichiers générés
+*.swp
+*.swo
+
+# Composer (si utilisé)
+vendor/
+
+# Node (si utilisé)
+node_modules/
+dist/
+
+# IDEs
+.vscode/
+.idea/
+
+# Mac/Linux
+*~
+
+# Sauvegardes
+*.old
+*.orig
+*.save
+
