@@ -4,22 +4,46 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 
+/**
+ * @class ProductResource
+ * Classe de l'API Produit.
+ */
 @Path("/products")
 public class ProductResource {
+
+    /**
+     * Pour le fichier JSON.
+     */
     private ProductService productService;
 
+    /**
+     * Constructeur par défaut.
+     */
     public ProductResource() {}
 
+    /**
+     * Constructeur
+     * @param productAndUserRepository
+     */
     public @Inject ProductResource(ProductAndUserRepositoryInterface productAndUserRepository) {
         this.productService = new ProductService(productAndUserRepository);
     }
 
+    /**
+     * Récupère tous les produits.
+     * @return tous les produits sous forme de chaîne de caractères.
+     */
     @GET
     @Produces("application/json")
     public String getAllProducts() {
         return productService.getAllProductsJSON();
     }
 
+    /**
+     * Récupère un produit particulier.
+     * @param reference
+     * @return le produit sous forme de chaîne de caractères.
+     */
     @GET
     @Path("{reference}")
     @Produces("application/json")
@@ -32,6 +56,12 @@ public class ProductResource {
         return result;
     }
 
+    /**
+     * Met à jour un produit.
+     * @param reference
+     * @param product
+     * @return si le produit a bien été mis à jour, sinon lance une NotFoundException.
+     */
     @PUT
     @Path("{reference}")
     @Consumes("application/json")

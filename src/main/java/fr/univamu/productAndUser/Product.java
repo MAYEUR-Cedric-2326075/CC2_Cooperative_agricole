@@ -1,13 +1,38 @@
 package fr.univamu.productAndUser;
 
+/**
+ * @class Product
+ * Définit ce qu'est un produit.
+ */
 public class Product {
+    /**
+     * Référence du produit
+     */
     protected String reference;
+
+    /**
+     * Nom du produit.
+     */
     protected String name;
+
+    /**
+     * Prix du produit.
+     */
     protected String price;
+
+    /**
+     * Statut du produit : 'r' pour "en rupture de stock" et 'd' pour "disponible".
+     */
     protected char status;
 
     public Product() {}
 
+    /**
+     * Constructeur
+     * @param reference  Référence du produit.
+     * @param name       Nom du produit.
+     * @param price             Prix du produit.
+     */
     public Product(String reference, String name, String price) {
         this.reference = reference;
         this.name = name;
@@ -15,6 +40,10 @@ public class Product {
         this.status = 'd';
     }
 
+    /**
+     * Getters et setters.
+     * @return
+     */
     public String getName() {
         return name;
     }

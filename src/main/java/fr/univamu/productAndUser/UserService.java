@@ -5,13 +5,25 @@ import jakarta.json.bind.JsonbBuilder;
 
 import java.util.ArrayList;
 
+/**
+ * @class UserService
+ * JSON.
+ */
 public class UserService {
     protected ProductAndUserRepositoryInterface prodAndUserRepository;
 
+    /**
+     * Constructeur.
+     * @param prodAndUserRepository
+     */
     public UserService(ProductAndUserRepositoryInterface prodAndUserRepository) {
         this.prodAndUserRepository = prodAndUserRepository;
     }
 
+    /**
+     * Récupère tous les utilisateurs existants.
+     * @return un fichier JSON.
+     */
     public String getAllUsersJSON(){
         ArrayList<User> allUsers = prodAndUserRepository.getAllUsers();
 
@@ -29,6 +41,11 @@ public class UserService {
         return result;
     }
 
+    /**
+     * Récupère un utilisateur particulier.
+     * @param email
+     * @return un fichier JSON.
+     */
     public String getUserJSON(String email){
         User user = prodAndUserRepository.getUser(email);
         String result = null;

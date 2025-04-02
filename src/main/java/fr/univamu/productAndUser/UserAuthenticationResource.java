@@ -12,16 +12,37 @@ import jakarta.ws.rs.core.Response;
 import java.io.UnsupportedEncodingException;
 import java.util.Base64;
 
+/**
+ * @class UserAuthenticationResource
+ * Ressource d'authentification utilisateur.
+ */
 @Path("/authenticate")
 @ApplicationScoped
 public class UserAuthenticationResource {
+    /**
+     * Service d'authentification utilisateur.
+     */
     private UserAuthenticationService userAuthenticationService;
 
+    /**
+     * Contructeur par défaut.
+     */
     public UserAuthenticationResource() {}
+
+    /**
+     * Constructeur.
+     * @param productAndUserRepository
+     */
     public @Inject UserAuthenticationResource(ProductAndUserRepositoryInterface productAndUserRepository) {
         this.userAuthenticationService = new UserAuthenticationService(productAndUserRepository);
     }
 
+    /**
+     * Méthode d'authentification.
+     * @param request
+     * @return
+     * @throws UnsupportedEncodingException
+     */
     @GET
     @Produces("text/plain")
     public Response authenticate(@Context ContainerRequestContext request) throws UnsupportedEncodingException {
