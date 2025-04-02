@@ -10,6 +10,6 @@ class ViewManageBaskets extends View
     public function __construct($layout, $login, Presenter $presenter) {
         parent::__construct($layout, $login);
         $this->title = 'Gestion des paniers';
-        $this->content = $presenter->getAllBasketsHTML();
+        $this->content = $presenter->getBasketsForUserHTML($login);
     }
 }

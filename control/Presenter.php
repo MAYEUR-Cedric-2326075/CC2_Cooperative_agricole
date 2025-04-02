@@ -12,6 +12,51 @@ class Presenter
     {
         $this->basketAccess = $basketAccess;
     }
+    public function getBasketsForUserHTML(string $email): string
+    {
+        if (!method_exists($this->basketAccess, 'getBasketsByUser')) {
+            return "<p>⚠️ Impossible de récupérer les paniers pour l'utilisateur : méthode manquante.</p>";
+        }
+
+        $baskets = $this->basketAccess->getBasketsByUser($email);
+
+        $content = '<h1>🧺 Vos Paniers</h1>';
+
+        if (empty($baskets)) {
+            $content .= '<p>Aucun panier trouvé pour cet utilisateur.</p>';
+            return $content;
+        }
+
+        $content .= '<table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Statut</th>
+                <th>Créé le</th>
+                <th>Articles</th>
+            </tr>
+        </thead>
+        <tbody>';
+
+        foreach ($baskets as $basket) {
+            $content .= '<tr>';
+            $content .= '<td>' . $basket->getId() . '</td>';
+            $content .= '<td>' . $basket->getStatus() . '</td>';
+            $content .= '<td>' . $basket->getCreatedAt() . '</td>';
+
+            $items = '';
+            foreach ($basket->getItems() as $item) {
+                $items .= htmlspecialchars($item['productId']) . ' x' . intval($item['quantity']) . '<br>';
+            }
+
+            $content .= '<td>' . $items . '</td>';
+            $content .= '</tr>';
+        }
+
+        $content .= '</tbody></table>';
+        return $content;
+    }
+
 
     public function getAllBasketsHTML(): string
     {

@@ -14,6 +14,19 @@ class JsonBasketAccess implements BasketAccessInterface {
     public function __construct(string $filePath = __DIR__ . '/../../data/Json/baskets.json') {
         $this->filePath = $filePath;
     }
+    public function getBasketsByUser(string $email): array {
+        $baskets = $this->getAllBaskets();
+        $filtered = [];
+
+        foreach ($baskets as $basket) {
+            if ($basket->getUserId() === $email) {
+                $filtered[$basket->getId()] = $basket;
+            }
+        }
+
+        return $filtered;
+    }
+
 
     public function getAllBaskets(): array {
         if (!file_exists($this->filePath)) {
