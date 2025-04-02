@@ -1,6 +1,7 @@
 <?php
 namespace gui;
-
+include_once "Layout.php";
+use gui\Layout as Layout;
 abstract class View
 {
     protected $title = '';
