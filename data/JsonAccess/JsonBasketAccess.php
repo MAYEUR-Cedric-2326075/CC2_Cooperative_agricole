@@ -2,7 +2,13 @@
 
 namespace data\JsonAccess;
 
-class JsonBasketAccess {
+use domain\Basket;
+use service\BasketAccessInterface;
+
+include_once __DIR__ . '/../../domain/Basket.php';
+include_once __DIR__ . '/../../service/interfaces/BasketAccessInterface.php';
+
+class JsonBasketAccess implements BasketAccessInterface {
     private string $filePath;
 
     public function __construct(string $filePath = __DIR__ . '/../../data/Json/baskets.json') {
@@ -18,34 +24,44 @@ class JsonBasketAccess {
         $data = json_decode($json, true);
 
         $baskets = [];
-        foreach ($data as $basket) {
-            $baskets[$basket['id']] = $basket;
+        foreach ($data as $b) {
+            $basket = Basket::fromArray($b);
+            $baskets[$basket->getId()] = $basket;
         }
 
         return $baskets;
     }
 
-    public function getBasketById(int $id): ?array {
+    public function getBasketById(string $id): ?Basket {
         $baskets = $this->getAllBaskets();
         return $baskets[$id] ?? null;
     }
 
-    public function createBasket(array $basket): bool {
+    public function createBasket(Basket|array $basket): bool {
         $baskets = $this->getAllBaskets();
 
-        $basket['id'] = count($baskets) > 0 ? max(array_keys($baskets)) + 1 : 1;
-        $baskets[$basket['id']] = $basket;
+        if (is_array($basket)) {
+            if (!isset($basket['id'], $basket['userId'], $basket['status'], $basket['items'], $basket['createdAt'])) {
+                return false;
+            }
+            $basket = Basket::fromArray($basket);
+        }
 
-        return file_put_contents($this->filePath, json_encode(array_values($baskets), JSON_PRETTY_PRINT)) !== false;
+        $baskets[$basket->getId()] = $basket;
+        $arrayData = array_map(fn($b) => $b->toArray(), $baskets);
+
+        return file_put_contents($this->filePath, json_encode(array_values($arrayData), JSON_PRETTY_PRINT)) !== false;
     }
 
-    public function deleteBasket(int $id): bool {
+    public function deleteBasketById(string $id): bool {
         $baskets = $this->getAllBaskets();
         if (!isset($baskets[$id])) {
             return false;
         }
 
         unset($baskets[$id]);
-        return file_put_contents($this->filePath, json_encode(array_values($baskets), JSON_PRETTY_PRINT)) !== false;
+        $arrayData = array_map(fn($b) => $b->toArray(), $baskets);
+
+        return file_put_contents($this->filePath, json_encode(array_values($arrayData), JSON_PRETTY_PRINT)) !== false;
     }
 }

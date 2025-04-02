@@ -1,30 +1,30 @@
 [
     {
-        "id": 1,
-        "userId": 101,
+        "id": "basket-001",
+        "userId": "alice@example.com",
         "status": "open",
         "items": [
             {
-                "productId": 201,
+                "productId": "prod-001",
                 "quantity": 2
             },
             {
-                "productId": 202,
+                "productId": "prod-002",
                 "quantity": 1
             }
         ],
-        "createdAt": "2025-03-31T10:00:00Z"
+        "createdAt": "2025-03-31T14:00:00Z"
     },
     {
-        "id": 2,
-        "userId": 102,
+        "id": "basket-002",
+        "userId": "bob@example.com",
         "status": "validated",
         "items": [
             {
-                "productId": 203,
-                "quantity": 5
+                "productId": "prod-003",
+                "quantity": 4
             }
         ],
-        "createdAt": "2025-03-30T14:30:00Z"
+        "createdAt": "2025-03-30T09:15:00Z"
     }
 ]
