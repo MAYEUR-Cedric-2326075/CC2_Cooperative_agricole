@@ -39,12 +39,12 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 // Page de connexion
 // Page d'accueil / login
-if ($uri == '/' || $uri == '/index.php') {
+if ( '/' == $uri || '/index.php' == $uri || '/index.php/logout' == $uri) {
+    session_destroy();
     $layout = new Layout("gui/layoutUnLogged.html");
     $viewLogin = new ViewLogin($layout);
     $viewLogin->display();
 }
-
 // Traitement de l'authentification (POST du formulaire)
 elseif ($uri == '/index.php/login') {
     $error = $controller->authenticateAction($userCreation, $authService, $dataUsers);
