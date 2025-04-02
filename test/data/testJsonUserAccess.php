@@ -3,7 +3,7 @@
 include_once '../../data/JsonAccess/JsonUserAccess.php';
 include_once '../../domain/User.php';
 
-use data\Json\JsonUserAccess;
+use data\JsonAccess\JsonUserAccess;
 use domain\User;
 
 $jsonAccess = new JsonUserAccess(__DIR__ . '/../../data/Json/users.json');
@@ -20,7 +20,7 @@ $createdArray = $jsonAccess->createUser($newUserArray);
 echo $createdArray ? "✅ User (array) created successfully.\n" : "❌ User already exists.\n";
 
 // --- Vérification de la présence de l'utilisateur ---
-$user = $jsonAccess->getUserByEmail("charlie@example.com");
+$user = $jsonAccess->getUser("charlie@example.com");
 echo "🔍 Retrieved user (from array creation):\n";
 print_r($user);
 
@@ -30,7 +30,7 @@ $createdObject = $jsonAccess->createUser($userObject);
 echo $createdObject ? "✅ User (object) created successfully.\n" : "❌ User already exists.\n";
 
 // --- Vérification de l'utilisateur objet ---
-$userObjCheck = $jsonAccess->getUserByEmail("dorian@example.com");
+$userObjCheck = $jsonAccess->getUser("dorian@example.com");
 echo "🔍 Retrieved user (from object creation):\n";
 print_r($userObjCheck);
 
@@ -44,7 +44,7 @@ $deleted = $jsonAccess->deleteUserByEmail("charlie@example.com");
 echo $deleted ? "🗑️ User 'charlie@example.com' deleted successfully.\n" : "❌ User not found for deletion.\n";
 
 // --- Vérification de la suppression ---
-$userAfterDelete = $jsonAccess->getUserByEmail("charlie@example.com");
+$userAfterDelete = $jsonAccess->getUser("charlie@example.com");
 echo "🔍 User after deletion:\n";
 var_dump($userAfterDelete);
 

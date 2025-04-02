@@ -10,20 +10,20 @@ class ViewLogin extends View
     {
         parent::__construct($layout);
 
-        $this->title = 'Exemple annonces Basic PHP: Connexion';
+        $this->title = 'Connexion - Coopérative agricole';
 
         $this->content = '
-            <form method="post" action="/index.php/annonces">
-                <label for="login"> Votre identifiant </label> :
-                <input type="text" name="login" id="login" placeholder="defaut" maxlength="12" required />
+            <h2>Connexion</h2>
+            <form method="post" action="/index.php/login">
+                <label for="email">Adresse e-mail :</label>
+                <input type="email" name="email" id="email" required />
                 <br />
-                <label for="password"> Votre mot de passe </label> :
-                <input type="password" name="password" id="password" minlength="12" required />
-        
-                <input type="submit" value="Envoyer">
+                <label for="password">Mot de passe :</label>
+                <input type="password" name="password" id="password" required />
+                <br />
+                <input type="submit" value="Se connecter">
             </form>
-            
-            <a href="/index.php/create">Création d\'un nouveau compte</a>
-            ';
+            <p><a href="/index.php/create">Créer un nouveau compte</a></p>
+        ';
     }
 }

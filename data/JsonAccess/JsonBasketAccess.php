@@ -1,6 +1,6 @@
 <?php
 
-namespace data\Json;
+namespace data\JsonAccess;
 class JsonBasketAccess
 {
 

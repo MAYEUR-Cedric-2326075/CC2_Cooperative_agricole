@@ -1,11 +1,14 @@
 <?php
-namespace data\Json;
+namespace data\JsonAccess;
 
 use domain\User;
-
+use service\UserAccessInterface;
 include_once __DIR__ . '/../../domain/User.php';
 
-class JsonUserAccess {
+include_once __DIR__ . '/../../service/interfaces/UserAccessInterface.php';
+
+
+class JsonUserAccess implements UserAccessInterface {
     private string $filePath;
 
     public function __construct(string $filePath = __DIR__ . '/../../data/Json/users.json') {
@@ -29,7 +32,7 @@ class JsonUserAccess {
         return $users;
     }
 
-    public function getUserByEmail(string $email): ?User {
+    public function getUser(string $email): ?User {
         foreach ($this->getAllUsers() as $user) {
             if ($user->getEmail() === $email) {
                 return $user;
