@@ -26,7 +26,7 @@ class JsonUserAccess implements UserAccessInterface {
         $users = [];
         foreach ($data as $u) {
             $user = User::fromArray($u);
-            $users[$user->getId()] = $user;
+            $users[$user->getEmail()] = $user;
         }
 
         return $users;
@@ -59,19 +59,22 @@ class JsonUserAccess implements UserAccessInterface {
             if (!isset($userData['type'], $userData['name'], $userData['email'], $userData['password'])) {
                 return false;
             }
-            $id = count($users) > 0 ? max(array_keys($users)) + 1 : 1;
-            $userData = new User($id, $userData['type'], $userData['name'], $userData['email'], $userData['password']);
+            $userData = new User(
+                $userData['email'],
+                $userData['type'],
+                $userData['name'],
+                $userData['password']
+            );
         }
 
         // Check if email already exists
-        foreach ($users as $user) {
-            if ($user->getEmail() === $userData->getEmail()) {
-                return false;
-            }
+        if (isset($users[$userData->getEmail()])) {
+            return false;
         }
 
-        $users[$userData->getId()] = $userData;
+        $users[$userData->getEmail()] = $userData;
         $arrayData = array_map(fn($u) => $u->toArray(), $users);
+
         return file_put_contents($this->filePath, json_encode(array_values($arrayData), JSON_PRETTY_PRINT)) !== false;
     }
 

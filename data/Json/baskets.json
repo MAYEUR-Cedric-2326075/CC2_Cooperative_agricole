@@ -1,0 +1,30 @@
+[
+    {
+        "id": 1,
+        "userId": 101,
+        "status": "open",
+        "items": [
+            {
+                "productId": 201,
+                "quantity": 2
+            },
+            {
+                "productId": 202,
+                "quantity": 1
+            }
+        ],
+        "createdAt": "2025-03-31T10:00:00Z"
+    },
+    {
+        "id": 2,
+        "userId": 102,
+        "status": "validated",
+        "items": [
+            {
+                "productId": 203,
+                "quantity": 5
+            }
+        ],
+        "createdAt": "2025-03-30T14:30:00Z"
+    }
+]

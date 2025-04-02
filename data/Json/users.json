@@ -1,23 +1,26 @@
 [
     {
-        "id": 1,
+        "email": "alice@example.com",
         "type": "customer",
         "name": "Alice Dupont",
-        "email": "alice@example.com",
         "password": "alice123"
     },
     {
-        "id": 2,
+        "email": "bob@example.com",
         "type": "manager",
         "name": "Bob Martin",
-        "email": "bob@example.com",
         "password": "bob456"
     },
     {
-        "id": 0,
+        "email": "dorian@example.com",
         "type": "manager",
         "name": "Dorian Manager",
-        "email": "dorian@example.com",
         "password": "manager123"
+    },
+    {
+        "email": "0",
+        "type": "manager",
+        "name": "Dorian Manager",
+        "password": "dorian@example.com"
     }
 ]

@@ -3,22 +3,20 @@
 namespace domain;
 
 class User {
-    private int $id;
+    private string $email;        // correspond à l'email
     private string $type;      // "customer" ou "manager"
     private string $name;
-    private string $email;
     private string $password;
 
-    public function __construct(int $id, string $type, string $name, string $email, string $password) {
-        $this->id = $id;
+    public function __construct(string $email, string $type, string $name, string $password) {
+        $this->email = $email; // email
         $this->type = $type;
         $this->name = $name;
-        $this->email = $email;
         $this->password = $password;
     }
 
-    public function getId(): int {
-        return $this->id;
+    public function getEmail(): string {
+        return $this->email;
     }
 
     public function getType(): string {
@@ -37,31 +35,26 @@ class User {
         return $this->name;
     }
 
-    public function getEmail(): string {
-        return $this->email;
-    }
-
     public function getPassword(): string {
         return $this->password;
     }
 
     public function toArray(): array {
         return [
-            "id" => $this->id,
+            "email" => $this->email,
             "type" => $this->type,
             "name" => $this->name,
-            "email" => $this->email,
             "password" => $this->password
         ];
     }
+
     public static function fromArray(array $data): User {
+        //var_dump($data);
         return new User(
-            $data['id'],
+            $data['email'],
             $data['type'],
             $data['name'],
-            $data['email'],
             $data['password']
         );
     }
-
 }

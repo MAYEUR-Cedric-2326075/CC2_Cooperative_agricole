@@ -15,6 +15,7 @@ $newUserArray = [
     "email" => "charlie@example.com",
     "password" => "test123"
 ];
+//var_dump($jsonAccess->getAllUsers());
 
 $createdArray = $jsonAccess->createUser($newUserArray);
 echo $createdArray ? "✅ User (array) created successfully.\n" : "❌ User already exists.\n";
