@@ -1,0 +1,23 @@
+[
+    {
+        "id": "p001",
+        "name": "Pommes Bio",
+        "description": "Pommes rouges cultivées localement",
+        "price": 2.99,
+        "stock": 150
+    },
+    {
+        "id": "p002",
+        "name": "Carottes Fraîches",
+        "description": "Carottes croquantes directement de la ferme",
+        "price": 1.49,
+        "stock": 200
+    },
+    {
+        "id": "p003",
+        "name": "Oeufs Fermiers",
+        "description": "Boîte de 6 œufs fermiers élevés en plein air",
+        "price": 3.5,
+        "stock": 80
+    }
+]

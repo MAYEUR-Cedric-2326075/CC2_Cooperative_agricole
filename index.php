@@ -29,7 +29,7 @@ include_once 'control/Controllers.php';
 include_once 'control/Presenter.php';
 
 use control\{Controllers, Presenter};
-use data\JsonAccess\{JsonBasketAccess, JsonUserAccess};
+use data\JsonAccess\{JsonBasketAccess, JsonOrderAccess, JsonUserAccess, JsonProductAccess};
 use service\{AuthentificationManagement, UserCreation,BasketService};
 use gui\{Layout, ViewLogin, ViewError, ViewManageBaskets,ViewCreateBasket};
 // Session
@@ -38,10 +38,12 @@ session_start();
 // Services
 $dataUsers = new JsonUserAccess(__DIR__ . '/data/Json/users.json');
 $dataBaskets = new JsonBasketAccess(__DIR__ . '/data/Json/baskets.json');
+$dataOrders = new JsonOrderAccess(__DIR__ . '/data/Json/orders.json');
+$dataProducts = new JsonProductAccess(__DIR__ . '/data/Json/products.json');
 $authService = new AuthentificationManagement($dataUsers);
 $controller = new Controllers();
 $userCreation = new UserCreation() ;
-$presenter = new Presenter($dataBaskets);
+$presenter = new Presenter($dataBaskets,$dataProducts);
 $basketService = new BasketService($dataBaskets);
 // URL demandée
 $uri =parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -68,12 +70,20 @@ elseif ($uri == '/index.php/login') {
     }
 }
 elseif ($uri === '/index.php/createBasket' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $items = [];
+    foreach ($_POST['quantities'] as $productId => $quantity) {
+        $quantity = (int)$quantity;
+        if ($quantity > 0) {
+            $items[] = ['productId' => $productId, 'quantity' => $quantity];
+        }
+    }
+
     $controller->createBasketAction($basketService, [
         'id' => $_POST['id'],
         'userId' => $_SESSION['user']['email'],
         'status' => $_POST['status'],
-        'createdAt' => $_POST['createdAt'],
-        'items' => json_decode($_POST['items'], true) ?? []
+        'createdAt' => date('Y-m-d H:i'),
+        'items' => $items
     ]);
     header("Location: /index.php/baskets");
     exit();

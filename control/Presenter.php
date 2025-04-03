@@ -3,14 +3,53 @@
 namespace control;
 
 use service\BasketAccessInterface;
+use service\ProductAccessInterface;
 
 class Presenter
 {
     protected BasketAccessInterface $basketAccess;
+    protected ProductAccessInterface $productAccess;
 
-    public function __construct(BasketAccessInterface $basketAccess)
+    public function __construct(BasketAccessInterface $basketAccess, ProductAccessInterface $productAccess)
     {
         $this->basketAccess = $basketAccess;
+        $this->productAccess = $productAccess;
+    }
+
+    public function getCreateBasketForm(): string
+    {
+        $products = $this->productAccess->getAllProducts();
+
+        $productInputs = '';
+        foreach ($products as $product) {
+            $productInputs .= '
+                <label>' . htmlspecialchars($product->getName()) . ' (ID: ' . $product->getId() . ')</label><br>
+                <input type="number" name="quantities[' . $product->getId() . ']" min="0" value="0"><br><br>
+            ';
+        }
+
+        return <<<HTML
+            <h2>➕ Ajouter un panier</h2>
+            <form method="post" action="/index.php/createBasket">
+                <label for="id">ID du panier :</label>
+                <input type="text" id="id" name="id" required><br><br>
+
+                <label for="status">Statut :</label>
+                <select name="status" id="status">
+                    <option value="open">Ouvert</option>
+                    <option value="submitted">Soumis</option>
+                    <option value="closed">Fermé</option>
+                </select><br><br>
+
+                <fieldset>
+                    <legend>Articles :</legend>
+                    $productInputs
+                </fieldset>
+
+                <input type="submit" value="Créer le panier">
+            </form>
+            <p><a href="/index.php/baskets">⬅ Retour à la liste des paniers</a></p>
+        HTML;
     }
 
     public function getBasketsForManagerHTML(string $email): string
@@ -115,31 +154,6 @@ class Presenter
 
         return $content;
     }
-    public function getCreateBasketForm(): string
-    {
-        return <<<HTML
-    <h2>➕ Ajouter un panier</h2>
-    <form method="post" action="/index.php/createBasket">
-        <label for="id">ID du panier :</label>
-        <input type="text" id="id" name="id" required><br><br>
 
-        <label for="status">Statut :</label>
-        <select name="status" id="status">
-            <option value="open">Ouvert</option>
-            <option value="submitted">Soumis</option>
-            <option value="closed">Fermé</option>
-        </select><br><br>
-
-        <label for="createdAt">Date de création :</label>
-        <input type="datetime-local" id="createdAt" name="createdAt" required><br><br>
-
-        <label for="items">Articles (format JSON) :</label><br>
-        <textarea name="items" id="items" rows="5" cols="50" placeholder='[{"productId": "abc", "quantity": 2}]'></textarea><br><br>
-
-        <input type="submit" value="Créer le panier">
-    </form>
-    <p><a href="/index.php/baskets">⬅ Retour à la liste des paniers</a></p>
-    HTML;
-    }
 
 }
