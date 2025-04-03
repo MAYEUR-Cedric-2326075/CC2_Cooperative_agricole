@@ -51,6 +51,21 @@ class JsonOrderAccess implements OrderAccessInterface
         ));
     }
 
+    /**
+     * Récupère toutes les commandes liées à un panier spécifique.
+     *
+     * @param string $basketId
+     * @return Order[]
+     */
+    public function getOrdersForBasket(string $basketId): array
+    {
+        return array_values(array_filter(
+            $this->getAllOrders(),
+            fn($order) => $order->getBasketId() === $basketId
+        ));
+    }
+
+
 
 
     public function getOrderById(string $id): ?Order

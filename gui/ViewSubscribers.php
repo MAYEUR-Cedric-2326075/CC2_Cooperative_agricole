@@ -15,13 +15,8 @@ class ViewSubscribers extends View
         if (empty($login)) {
             $this->content = "<p>❌ Aucune session utilisateur détectée.</p>";
         } else {
-            $basket = $presenter->getBasketsForManagerHTML($basketId); // nouvelle méthode à ajouter dans Presenter
-            if ($basket) {
-                $this->content = $presenter->getSubscribersHTML($basketId);
-                //echo "CAR";
-            } else {
-                $this->content = "<p>⚠️ Panier introuvable.</p>";
-            }
+            $this->content = $presenter->getSubscribersHTML($basketId);
+            $this->content .= $presenter->getOrdersForBasketHTML($basketId);
         }
     }
 }

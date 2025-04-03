@@ -32,4 +32,6 @@ interface OrderAccessInterface
      * @return Order|null
      */
     public function getOrderById(string $id): ?Order;
+
+    public function getOrdersForBasket(string $basketId): array;
 }

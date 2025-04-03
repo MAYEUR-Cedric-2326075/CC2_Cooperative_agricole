@@ -24,6 +24,19 @@ class OrdersChecking
     {
         return $this->orderAccess->getOrdersByCustomer($customerEmail);
     }
+    /**
+     * Récupère toutes les commandes associées à un panier spécifique.
+     * @param string $basketId
+     * @return Order[]
+     */
+    public function getOrdersForBasket(string $basketId): array
+    {
+        return array_filter(
+            $this->orderAccess->getAllOrders(),
+            fn(Order $order) => $order->getBasketId() === $basketId
+        );
+    }
+
 
     /**
      * Récupère toutes les commandes des paniers appartenant à un manager.

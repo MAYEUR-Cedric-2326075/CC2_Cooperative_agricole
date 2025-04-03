@@ -33,5 +33,26 @@
         "subscribers": [
             "alice@example.com"
         ]
+    },
+    {
+        "id": "temp",
+        "userId": "bob@example.com",
+        "status": "submitted",
+        "items": [
+            {
+                "productId": "p001",
+                "quantity": 5
+            },
+            {
+                "productId": "p002",
+                "quantity": 7
+            },
+            {
+                "productId": "p003",
+                "quantity": 80
+            }
+        ],
+        "createdAt": "2025-04-03 23:22",
+        "subscribers": []
     }
 ]

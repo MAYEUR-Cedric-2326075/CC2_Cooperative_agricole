@@ -125,7 +125,7 @@ if ($uri === '/index.php/deleteBasket' && isset($_GET['id'])) {
 // Abonnement
 if ($uri === '/index.php/subscribe' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     // Appel à SubscriberRegistration si implémenté
-    header("Location: /index.php/subscriptions");
+    header("Location: /index.php/subscribers");
     exit();
 }
 
@@ -153,6 +153,7 @@ if ($uri === '/index.php/subscriptions' && $_SESSION['type'] === 'customer') {
 // Page principale des paniers (redirection dynamique selon le type)
 if ($uri === '/index.php/baskets') {
     if ($_SESSION['type'] === 'manager') {
+        echo "DOG";
         $layout = new Layout("gui/layoutLoggedManager.html");
         (new ViewManageBaskets($layout, $_SESSION['user']['email'], $presenter))->display();
     } elseif ($_SESSION['type'] === 'customer') {

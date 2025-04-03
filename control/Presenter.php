@@ -246,4 +246,36 @@ class Presenter
         return $content;
     }
 
+
+    public function getOrdersForBasketHTML(string $basketId): string
+    {
+        $orders = $this->ordersChecking->getOrdersForBasket($basketId);
+        $content = '<h2>📦 Commandes du panier ' . htmlspecialchars($basketId) . '</h2>';
+
+        if (empty($orders)) {
+            return $content . '<p>Aucune commande pour ce panier.</p>';
+        }
+
+        $content .= '<table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID Commande</th>
+                <th>Client</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>';
+
+        foreach ($orders as $order) {
+            $content .= '<tr>';
+            $content .= '<td>' . htmlspecialchars($order->getId()) . '</td>';
+            $content .= '<td>' . htmlspecialchars($order->getCustomerEmail()) . '</td>';
+            $content .= '<td>' . htmlspecialchars($order->getOrderedAt()) . '</td>';
+            $content .= '</tr>';
+        }
+
+        $content .= '</tbody></table>';
+        return $content;
+    }
+
 }
