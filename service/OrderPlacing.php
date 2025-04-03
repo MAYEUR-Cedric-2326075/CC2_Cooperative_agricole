@@ -28,8 +28,8 @@ class OrderPlacing
 
         $order = new Order(
             $orderId,
-            $customerEmail,
             $basketId,
+            $customerEmail,
             date('Y-m-d\TH:i:s\Z'),
             $basket->getItems()
         );

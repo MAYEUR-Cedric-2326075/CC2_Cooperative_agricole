@@ -45,11 +45,13 @@ class JsonOrderAccess implements OrderAccessInterface
 
     public function getOrdersByCustomer(string $email): array
     {
-        return array_filter(
+        return array_values(array_filter(
             $this->getAllOrders(),
             fn($order) => $order->getCustomerEmail() === $email
-        );
+        ));
     }
+
+
 
     public function getOrderById(string $id): ?Order
     {

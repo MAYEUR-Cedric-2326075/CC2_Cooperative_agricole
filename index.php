@@ -70,10 +70,6 @@ if ($uri === '/' || $uri === '/index.php' || $uri === '/index.php/logout') {
     (new ViewLogin($layout))->display();
     //var_dump($ordersChecking->getOrdersForCustomer("alice@example.com"));
     exit();
-
-
-
-
 }
 
 // Authentification

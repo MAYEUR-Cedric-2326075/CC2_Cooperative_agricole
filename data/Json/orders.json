@@ -43,8 +43,8 @@
     },
     {
         "id": "order-67eeffd6a98a90.62124420",
-        "basketId": "alice@example.com",
-        "customerEmail": "basket-001",
+        "basketId": "basket-001",
+        "customerEmail": "alice@example.com",
         "orderedAt": "2025-04-03T21:38:30Z"
     },
     {
@@ -58,5 +58,29 @@
         "basketId": "alice@example.com",
         "customerEmail": "basket-001",
         "orderedAt": "2025-04-03T21:40:04Z"
+    },
+    {
+        "id": "order-67ef0b7ce6a322.77061272",
+        "basketId": "alice@example.com",
+        "customerEmail": "basket-001",
+        "orderedAt": "2025-04-03T22:28:12Z"
+    },
+    {
+        "id": "cmd100",
+        "basketId": "basket1",
+        "customerEmail": "client1@example.com",
+        "orderedAt": "2024-04-03 14:00"
+    },
+    {
+        "id": "cmd101",
+        "basketId": "basket2",
+        "customerEmail": "client2@example.com",
+        "orderedAt": "2024-04-03 14:30"
+    },
+    {
+        "id": "order-67ef1008bce5e6.98973222",
+        "basketId": "basket-001",
+        "customerEmail": "alice@example.com",
+        "orderedAt": "2025-04-03T22:47:36Z"
     }
 ]
