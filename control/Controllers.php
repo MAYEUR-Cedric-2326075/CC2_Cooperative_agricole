@@ -3,12 +3,17 @@
 namespace control;
 
 use service\AuthentificationManagement;
+use service\OrderPlacing;
 use service\BasketService;
-use service\SubscriptionService;
+use service\SubscriberRegistration;
 use service\UserCreation;
 use domain\User;
 
 class Controllers {
+    public function createOrderAction(OrderPlacing $orderPlacing, string $basketId, string $customerEmail): bool {
+        return $orderPlacing->placeOrder($basketId, $customerEmail);
+    }
+
 
     public function authenticateAction(
         UserCreation $userCreation,
@@ -39,11 +44,11 @@ class Controllers {
     public function deleteBasketAction(BasketService $basketService, string $id): bool {
         return $basketService->deleteBasket($id);
     }
-    public function aboSubscribeAction(SubscriptionService $subService, string $customerEmail, string $managerEmail): bool {
+    public function aboSubscribeAction(SubscriberRegistration $subService, string $customerEmail, string $managerEmail): bool {
         return $subService->subscribe($customerEmail, $managerEmail);
     }
 
-    public function aboUnsubscribeAction(SubscriptionService $subService, string $customerEmail, string $managerEmail): bool {
+    public function aboUnsubscribeAction(SubscriberRegistration $subService, string $customerEmail, string $managerEmail): bool {
         return $subService->unsubscribe($customerEmail, $managerEmail);
     }
 }

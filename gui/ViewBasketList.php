@@ -5,11 +5,11 @@ namespace gui;
 use gui\View;
 use control\Presenter;
 
-class ViewManageList extends View
+class ViewBasketList extends View
 {
     public function __construct($layout, $login, Presenter $presenter) {
         parent::__construct($layout, $login);
         $this->title = 'Gestion des paniers';
-        $this->content = $presenter->getBasketsForUserHTML($login);
+        $this->content = $presenter->getAllBasketsHTMLForCustomer();
     }
 }

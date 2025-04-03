@@ -6,10 +6,13 @@ include_once 'domain/Basket.php';
 
 // --- service ---
 include_once 'service/AuthentificationManagement.php';
+include_once 'service/SubscriberRegistration.php';
 include_once 'service/BasketService.php';
 include_once 'service/UserCreation.php';
 include_once 'service/interfaces/UserAccessInterface.php';
 include_once 'service/interfaces/BasketAccessInterface.php';
+include_once 'service/OrderPlacing.php';//
+include_once 'service/OrdersChecking.php';
 
 // --- gui ---
 include_once 'gui/Layout.php';
@@ -17,6 +20,11 @@ include_once 'gui/ViewLogin.php';
 include_once 'gui/ViewError.php';
 include_once 'gui/ViewManageBaskets.php';
 include_once 'gui/ViewCreateBasket.php';
+include_once 'gui/ViewSubscribers.php';
+include_once 'gui/ViewSubscription.php';//
+include_once 'gui/ViewBasketList.php';
+include_once 'gui/ViewOrders.php';
+
 
 // --- data / JsonAccess ---
 include_once 'data/JsonAccess/JsonUserAccess.php';
@@ -27,165 +35,176 @@ include_once 'data/JsonAccess/JsonProductAccess.php';
 // --- control ---
 include_once 'control/Controllers.php';
 include_once 'control/Presenter.php';
-include_once 'gui/ViewSubscribers.php';
-include_once 'gui/ViewSubscription.php';
 
 use control\{Controllers, Presenter};
 use data\JsonAccess\{JsonBasketAccess, JsonOrderAccess, JsonUserAccess, JsonProductAccess};
-use service\{AuthentificationManagement, UserCreation,BasketService};
-use gui\{Layout, ViewLogin, ViewError, ViewManageBaskets,ViewCreateBasket,ViewSubscribers,ViewSubscription};
+use service\{AuthentificationManagement, UserCreation, BasketService, SubscriberRegistration,OrderPlacing,OrdersChecking};
+use gui\{Layout, ViewLogin, ViewError, ViewManageBaskets, ViewCreateBasket, ViewSubscribers, ViewSubscription,ViewBasketList,ViewOrders};
 
-// Session
+// ...
+
+
+
 session_start();
 
-// Services
+// Initialisation des services
 $dataUsers = new JsonUserAccess(__DIR__ . '/data/Json/users.json');
+$dataOrders = new JsonUserAccess(__DIR__ . '/data/Json/orders.json');
 $dataBaskets = new JsonBasketAccess(__DIR__ . '/data/Json/baskets.json');
 $dataOrders = new JsonOrderAccess(__DIR__ . '/data/Json/orders.json');
 $dataProducts = new JsonProductAccess(__DIR__ . '/data/Json/products.json');
-$authService = new AuthentificationManagement($dataUsers);
+
+$authService = new AuthentificationManagement($dataUsers);//
 $controller = new Controllers();
-$userCreation = new UserCreation() ;
-$presenter = new Presenter($dataBaskets,$dataProducts);
+$userCreation = new UserCreation();
+$ordersChecking = new OrdersChecking($dataOrders,$dataBaskets);
+$presenter = new Presenter($dataBaskets, $dataProducts,$ordersChecking);
 $basketService = new BasketService($dataBaskets);
-// URL demandée
-$uri =parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-//$uri ='/';
-// Page de connexion
-// Page d'accueil / login
-if ( '/' == $uri || '/index.php' == $uri || '/index.php/logout' == $uri) {
+$orderPlacing = new OrderPlacing ($dataOrders,$dataBaskets);
+$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+// Page de connexion ou déconnexion
+if ($uri === '/' || $uri === '/index.php' || $uri === '/index.php/logout') {
     session_destroy();
     $layout = new Layout("gui/layoutUnLogged.html");
-    $viewLogin = new ViewLogin($layout);
-    $viewLogin->display();
+    (new ViewLogin($layout))->display();
+    //var_dump($ordersChecking->getOrdersForCustomer("alice@example.com"));
+    exit();
+
+
+
+
 }
-// Traitement de l'authentification (POST du formulaire)
-elseif ($uri == '/index.php/login') {
-    $error = $controller->authenticateAction($userCreation, $authService,$_POST['email'],$_POST['password']);
-//$_POST['email'], $_POST['password']);
+
+// Authentification
+if ($uri === '/index.php/login') {
+    $error = $controller->authenticateAction($userCreation, $authService, $_POST['email'], $_POST['password']);
     if ($error !== null) {
         $layout = new Layout("gui/layoutUnLogged.html");
-        $viewError = new ViewError($layout, $error, '/index.php');
-        $viewError->display();
+        (new ViewError($layout, $error, '/index.php'))->display();
     } else {
         header("Location: /index.php/baskets");
+    }
+    exit();
+}
+
+// Création d'un panier
+elseif ($uri === '/index.php/createBasket') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // 👉 Traitement du formulaire
+        $items = [];
+        foreach ($_POST['quantities'] as $productId => $quantity) {
+            $quantity = (int)$quantity;
+            if ($quantity > 0) {
+                $items[] = ['productId' => $productId, 'quantity' => $quantity];
+            }
+        }
+
+        $controller->createBasketAction($basketService, [
+            'id' => $_POST['id'],
+            'userId' => $_SESSION['user']['email'],
+            'status' => $_POST['status'],
+            'createdAt' => date('Y-m-d H:i'),
+            'items' => $items
+        ]);
+
+        header("Location: /index.php/baskets");
+        exit();
+    } else {
+        // 👉 Affichage du formulaire
+        $layout = new Layout("gui/layoutLoggedManager.html");
+        $view = new ViewCreateBasket($layout, $_SESSION['user']['email'], $presenter);
+        $view->display();
         exit();
     }
 }
-elseif ($uri === '/index.php/createBasket' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $items = [];
-    foreach ($_POST['quantities'] as $productId => $quantity) {
-        $quantity = (int)$quantity;
-        if ($quantity > 0) {
-            $items[] = ['productId' => $productId, 'quantity' => $quantity];
-        }
-    }
 
-    $controller->createBasketAction($basketService, [
-        'id' => $_POST['id'],
-        'userId' => $_SESSION['user']['email'],
-        'status' => $_POST['status'],
-        'createdAt' => date('Y-m-d H:i'),
-        'items' => $items
-    ]);
-    header("Location: /index.php/baskets");
-    exit();
-}
-
-elseif ($uri === '/index.php/editBasket' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    /*$controller->editBasketAction($basketService, [
-        'id' => $_POST['id'],
-        'userId' => $_SESSION['user']['email'],
-        'status' => $_POST['status'],
-        'createdAt' => $_POST['createdAt'],
-        'items' => json_decode($_POST['items'], true) ?? []
-    ]);*/
-    header("Location: /index.php/baskets");
-    exit();
-}
-
-elseif ($uri === '/index.php/deleteBasket' && isset($_GET['id'])) {
+// Suppression d'un panier
+if ($uri === '/index.php/deleteBasket' && isset($_GET['id'])) {
     $controller->deleteBasketAction($basketService, $_GET['id']);
     header("Location: /index.php/baskets");
     exit();
 }
-// 🔁 Abonner un utilisateur à un panier
-elseif ($uri === '/index.php/subscribe' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['basketId']) && isset($_SESSION['user']['email'])) {
-        //$basketService->subscribeToBasket($_POST['basketId'], $_SESSION['user']['email']);
-    }
+
+// Abonnement
+if ($uri === '/index.php/subscribe' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Appel à SubscriberRegistration si implémenté
     header("Location: /index.php/subscriptions");
     exit();
 }
 
-// 🔁 Désabonner un utilisateur d’un panier
-elseif ($uri === '/index.php/unsubscribe' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['basketId'], $_POST['email'])) {
-        //$basketService->unsubscribeFromBasket($_POST['basketId'], $_POST['email']);
-    }
-    // Redirige vers la page précédente
+// Désabonnement
+if ($uri === '/index.php/unsubscribe' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Appel à SubscriberRegistration si implémenté
     header("Location: " . $_SERVER['HTTP_REFERER']);
     exit();
 }
 
-// 👁 Voir les abonnés d’un panier (Manager)
-elseif ($uri === '/index.php/subscribers' && isset($_GET['basketId']) && $_SESSION['type'] === 'manager') {
-
+// Voir abonnés (manager uniquement)
+if ($uri === '/index.php/subscribers' && isset($_GET['basketId']) && $_SESSION['type'] === 'manager') {
     $layout = new Layout("gui/layoutLoggedManager.html");
-    $view = new ViewSubscribers($layout, $_SESSION['user']['email'], $_GET['basketId'], $presenter);
-    $view->display();
+    (new ViewSubscribers($layout, $_SESSION['user']['email'], $_GET['basketId'], $presenter))->display();
+    exit();
 }
 
-// 👁 Voir ses abonnements (Customer)
-elseif ($uri === '/index.php/subscriptions' && $_SESSION['type'] === 'customer') {
+// Voir abonnements (customer uniquement)
+if ($uri === '/index.php/subscriptions' && $_SESSION['type'] === 'customer') {
     $layout = new Layout("gui/layoutLoggedCustomer.html");
-    $view = new ViewSubscription($layout, $_SESSION['user']['email'], $presenter);
-    $view->display();
+    (new ViewSubscription($layout, $_SESSION['user']['email'], $presenter))->display();
+    exit();
 }
-// Page de succès
-// Visualisation des paniers (manager uniquement)
-elseif (strpos($uri, '/index.php') === 0 && isset($_SESSION['user']) && $_SESSION['type'] === 'manager') {
 
-    // 🔄 Créer un panier via le contrôleur
-    if ($uri === '/index.php/createBasket' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+// Page principale des paniers (redirection dynamique selon le type)
+if ($uri === '/index.php/baskets') {
+    if ($_SESSION['type'] === 'manager') {
         $layout = new Layout("gui/layoutLoggedManager.html");
-
-        $view = new ViewCreateBasket($layout, $_SESSION['user']['email'], $presenter);
-        $view->display();
-
-    }
-
-    // 🗑 Supprimer un panier via le contrôleur
-    elseif ($uri === '/index.php/deleteBasket' && isset($_GET['id'])) {
-        //$controller->deleteBasketAction($_GET['id']);
-        header("Location: /index.php/baskets");
-        exit();
-    }
-
-    // ✏ Modifier un panier (réutilise createBasketAction pour remplacement)
-    elseif ($uri === '/index.php/editBasket' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        //$controller->createBasketAction($_SESSION['email']);
-        header("Location: /index.php/baskets");
-        exit();
-    }
-
-    // 🧺 Visualiser la liste complète
-    elseif ($uri === '/index.php/baskets') {
-        $layout = new Layout("gui/layoutLoggedManager.html");
-        $view = new ViewManageBaskets($layout, $_SESSION['user']['email'], $presenter);
+        (new ViewManageBaskets($layout, $_SESSION['user']['email'], $presenter))->display();
+    } elseif ($_SESSION['type'] === 'customer') {
+        $layout = new Layout("gui/layoutLoggedCustomer.html");
+        $view =new ViewBasketList($layout, $_SESSION['user']['email'], $presenter);
         $view->display();
     }
-
-    // ❌ URL non reconnue
     else {
-        /*if(isset($_GET['basketId']))
-            echo"Dog";
-        else
-            echo "Cat";
-        echo $_SESSION['type'];*/
-        $layout = new Layout("gui/layoutLoggedManager.html");
-        $viewError = new ViewError($layout, "❌ URL invalide pour un gestionnaire", "/index.php");
-        $viewError->display();
+        $layout = new Layout("gui/layoutUnLogged.html");
+        (new ViewError($layout, "❌ Type d'utilisateur inconnu", "/index.php"))->display();
     }
+
+    exit();
 }
+// 🛒 Passer une commande à partir d’un panier
+elseif ($uri === '/index.php/order' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    //echo "DOG";
+    if (isset($_POST['basketId']) && isset($_SESSION['user']['email'])) {
+        //echo "DOG";
+        $controller->createOrderAction($orderPlacing, $_POST['basketId'], $_SESSION['user']['email']);
+        //echo "DOG";
+    }
+    header("Location: /index.php/order"); // ou une autre page après commande
+    exit();
+}
+// 🛒 Passer une commande à partir d’un panier
+elseif ($uri === '/index.php/order') {
+    //echo "dog";
+    if (!isset($_SESSION['user'])) {
+        $layout = new Layout("gui/layoutUnLogged.html");
+        (new ViewError($layout, "🚫 Vous devez être connecté.", "/index.php"))->display();
+        exit();
+    }
+    //echo "dog";
+    $layout = ($_SESSION['type'] === 'manager')
+        ? new Layout("gui/layoutLoggedManager.html")
+        : new Layout("gui/layoutLoggedCustomer.html");
+    //echo "dog";
+    //echo $_SESSION['type'];
+    //var_dump($_SESSION['user']);
+    $view = new ViewOrders($layout, $_SESSION['user']['email'], $_SESSION['type'], $presenter, $ordersChecking);
+    $view->display();
+    exit();
+}
+else{
+    // Fallback : erreur
+    $layout = new Layout("gui/layoutUnLogged.html");
+    (new ViewError($layout, "❌ Page inconnue ou accès non autorisé", "/index.php"))->display();
+}
+
 

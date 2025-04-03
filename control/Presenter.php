@@ -4,16 +4,19 @@ namespace control;
 
 use service\BasketAccessInterface;
 use service\ProductAccessInterface;
+use service\OrdersChecking;
 
 class Presenter
 {
     protected BasketAccessInterface $basketAccess;
     protected ProductAccessInterface $productAccess;
+    protected OrdersChecking $ordersChecking;
 
-    public function __construct(BasketAccessInterface $basketAccess, ProductAccessInterface $productAccess)
+    public function __construct(BasketAccessInterface $basketAccess, ProductAccessInterface $productAccess, OrdersChecking $ordersChecking)
     {
         $this->basketAccess = $basketAccess;
         $this->productAccess = $productAccess;
+        $this->ordersChecking = $ordersChecking;
     }
 
     public function getCreateBasketForm(): string
@@ -108,55 +111,60 @@ class Presenter
     }
 
 
-    public function getAllBasketsHTML(): string
+    public function getAllBasketsHTMLForCustomer(): string
     {
         $baskets = $this->basketAccess->getAllBaskets();
 
-        $content = '<h1>🧺 Gestion des Paniers</h1>';
+        $content = '<h1>🛒 Paniers disponibles</h1>';
 
         if (empty($baskets)) {
-            $content .= '<p>Aucun panier disponible.</p>';
+            $content .= '<p>Aucun panier disponible pour le moment.</p>';
             return $content;
         }
 
         $content .= '<table border="1" cellpadding="5" cellspacing="0">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Utilisateur</th>
-                    <th>Statut</th>
-                    <th>Créé le</th>
-                    <th>Articles</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>';
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Créateur</th>
+                <th>Statut</th>
+                <th>Créé le</th>
+                <th>Articles</th>
+                <th>Commander</th>
+            </tr>
+        </thead>
+        <tbody>';
 
         foreach ($baskets as $basket) {
             $content .= '<tr>';
-            $content .= '<td>' . $basket->getId() . '</td>';
-            $content .= '<td>' . $basket->getUserId() . '</td>';
-            $content .= '<td>' . $basket->getStatus() . '</td>';
-            $content .= '<td>' . $basket->getCreatedAt() . '</td>';
+            $content .= '<td>' . htmlspecialchars($basket->getId()) . '</td>';
+            $content .= '<td>' . htmlspecialchars($basket->getUserId()) . '</td>';
+            $content .= '<td>' . htmlspecialchars($basket->getStatus()) . '</td>';
+            $content .= '<td>' . htmlspecialchars($basket->getCreatedAt()) . '</td>';
 
             $items = '';
             foreach ($basket->getItems() as $item) {
                 $items .= htmlspecialchars($item['productId']) . ' x' . intval($item['quantity']) . '<br>';
             }
-
             $content .= '<td>' . $items . '</td>';
+
+            // 🛒 Bouton Commander
             $content .= '<td>
-                <a href="/index.php/editBasket?id=' . $basket->getId() . '">✏ Modifier</a> |
-                <a href="/index.php/deleteBasket?id=' . $basket->getId() . '">🗑 Supprimer</a>
-            </td>';
+            <form method="post" action="/index.php/order" style="display:inline;">
+                <input type="hidden" name="basketId" value="' . htmlspecialchars($basket->getId()) . '">
+                <button type="submit">🛒 Commander</button>
+            </form>
+        </td>';
+
             $content .= '</tr>';
         }
 
         $content .= '</tbody></table>';
-        $content .= '<p><a href="/index.php/createBasket">➕ Ajouter un nouveau panier</a></p>';
 
         return $content;
     }
+
+
 
     public function getSubscribersHTML(string $basketId): string
     {
@@ -206,4 +214,36 @@ class Presenter
 
         return $content;
     }
+    public function getOrdersHTMLForCustomer(string $email): string
+    {
+        $orders = $this->ordersChecking->getOrdersForCustomer($email);
+        $content = '<h2>📦 Mes commandes</h2>';
+
+        if (empty($orders)) {
+            return $content . '<p>Aucune commande passée.</p>';
+        }
+
+        $content .= '<table border="1" cellpadding="5" cellspacing="0">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Panier</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody>';
+
+        foreach ($orders as $order) {
+            $content .= '<tr>';
+            $content .= '<td>' . htmlspecialchars($order->getId()) . '</td>';
+            $content .= '<td>' . htmlspecialchars($order->getBasketId()) . '</td>';
+            $content .= '<td>' . htmlspecialchars($order->getOrderedAt()) . '</td>';
+            $content .= '</tr>';
+        }
+
+        $content .= '</tbody></table>';
+
+        return $content;
+    }
+
 }
