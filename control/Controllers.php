@@ -3,7 +3,7 @@
 namespace control;
 
 use service\AuthentificationManagement;
-use service\BasketAccessInterface;
+use service\BasketService;
 use service\UserCreation;
 use domain\User;
 
@@ -12,9 +12,11 @@ class Controllers {
     public function authenticateAction(
         UserCreation $userCreation,
         AuthentificationManagement $auth,
-        $dataUsers
+        string $email,
+        string $password/*,
+        $dataUsers*/
     ): ?string {
-        $user = $auth->authenticate($_POST['email'], $_POST['password']);
+        $user = $auth->authenticate($email, $password);
         if ($user === null) {
             return 'bad login or pwd';
         }
@@ -25,27 +27,15 @@ class Controllers {
         $auth->logOut();
     }
 
-    public function createBasketAction(BasketAccessInterface $basketAccess, string $userEmail): bool {
-        if (!isset($_POST['id'], $_POST['status'], $_POST['createdAt'], $_POST['items'])) {
+    public function createBasketAction(BasketService $basketService, array $basketData): bool {
+        if (!isset($basketData['id'], $basketData['status'], $basketData['createdAt'], $basketData['items'], $basketData['userId'])) {
             return false;
         }
 
-        $basket = [
-            'id' => $_POST['id'],
-            'userId' => $userEmail,
-            'status' => $_POST['status'],
-            'createdAt' => $_POST['createdAt'],
-            'items' => json_decode($_POST['items'], true) ?? []
-        ];
-
-        return $basketAccess->createBasket($basket);
+        return $basketService->createBasket($basketData);
     }
 
-    public function deleteBasketAction(BasketAccessInterface $basketAccess): bool {
-        if (!isset($_GET['id'])) {
-            return false;
-        }
-
-        return $basketAccess->deleteBasketById($_GET['id']);
+    public function deleteBasketAction(BasketService $basketService, string $id): bool {
+        return $basketService->deleteBasket($id);
     }
 }

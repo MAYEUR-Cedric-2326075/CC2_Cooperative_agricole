@@ -1,7 +1,7 @@
 [
     {
         "id": "basket-001",
-        "userId": "alice@example.com",
+        "userId": "bob@example.com\"",
         "status": "open",
         "items": [
             {

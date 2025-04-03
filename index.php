@@ -6,6 +6,7 @@ include_once 'domain/Basket.php';
 
 // --- service ---
 include_once 'service/AuthentificationManagement.php';
+include_once 'service/BasketService.php';
 include_once 'service/UserCreation.php';
 include_once 'service/interfaces/UserAccessInterface.php';
 include_once 'service/interfaces/BasketAccessInterface.php';
@@ -29,7 +30,7 @@ include_once 'control/Presenter.php';
 
 use control\{Controllers, Presenter};
 use data\JsonAccess\{JsonBasketAccess, JsonUserAccess};
-use service\{AuthentificationManagement, UserCreation};
+use service\{AuthentificationManagement, UserCreation,BasketService};
 use gui\{Layout, ViewLogin, ViewError, ViewManageBaskets,ViewCreateBasket};
 // Session
 session_start();
@@ -41,6 +42,7 @@ $authService = new AuthentificationManagement($dataUsers);
 $controller = new Controllers();
 $userCreation = new UserCreation() ;
 $presenter = new Presenter($dataBaskets);
+$basketService = new BasketService($dataBaskets);
 // URL demandée
 $uri =parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
@@ -54,8 +56,8 @@ if ( '/' == $uri || '/index.php' == $uri || '/index.php/logout' == $uri) {
 }
 // Traitement de l'authentification (POST du formulaire)
 elseif ($uri == '/index.php/login') {
-    $error = $controller->authenticateAction($userCreation, $authService, $dataUsers);
-
+    $error = $controller->authenticateAction($userCreation, $authService,$_POST['email'],$_POST['password']);
+//$_POST['email'], $_POST['password']);
     if ($error !== null) {
         $layout = new Layout("gui/layoutUnLogged.html");
         $viewError = new ViewError($layout, $error, '/index.php');
@@ -65,7 +67,35 @@ elseif ($uri == '/index.php/login') {
         exit();
     }
 }
+elseif ($uri === '/index.php/createBasket' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $controller->createBasketAction($basketService, [
+        'id' => $_POST['id'],
+        'userId' => $_SESSION['user']['email'],
+        'status' => $_POST['status'],
+        'createdAt' => $_POST['createdAt'],
+        'items' => json_decode($_POST['items'], true) ?? []
+    ]);
+    header("Location: /index.php/baskets");
+    exit();
+}
 
+elseif ($uri === '/index.php/editBasket' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    /*$controller->editBasketAction($basketService, [
+        'id' => $_POST['id'],
+        'userId' => $_SESSION['user']['email'],
+        'status' => $_POST['status'],
+        'createdAt' => $_POST['createdAt'],
+        'items' => json_decode($_POST['items'], true) ?? []
+    ]);*/
+    header("Location: /index.php/baskets");
+    exit();
+}
+
+elseif ($uri === '/index.php/deleteBasket' && isset($_GET['id'])) {
+    $controller->deleteBasketAction($basketService, $_GET['id']);
+    header("Location: /index.php/baskets");
+    exit();
+}
 // Page de succès
 // Visualisation des paniers (manager uniquement)
 elseif (strpos($uri, '/index.php') === 0 && isset($_SESSION['user']) && $_SESSION['type'] === 'manager') {
@@ -81,14 +111,14 @@ elseif (strpos($uri, '/index.php') === 0 && isset($_SESSION['user']) && $_SESSIO
 
     // 🗑 Supprimer un panier via le contrôleur
     elseif ($uri === '/index.php/deleteBasket' && isset($_GET['id'])) {
-        //$controller->deleteBasketAction();
+        //$controller->deleteBasketAction($_GET['id']);
         header("Location: /index.php/baskets");
         exit();
     }
 
     // ✏ Modifier un panier (réutilise createBasketAction pour remplacement)
     elseif ($uri === '/index.php/editBasket' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-        $controller->createBasketAction($_SESSION['email']);
+        //$controller->createBasketAction($_SESSION['email']);
         header("Location: /index.php/baskets");
         exit();
     }
