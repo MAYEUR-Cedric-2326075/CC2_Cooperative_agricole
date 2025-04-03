@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE resources PUBLIC "-//GlassFish.org//DTD GlassFish Application Server 3.1 Resource Definitions//EN" "http://glassfish.org/dtds/glassfish-resources_1_5.dtd">
+<resources>
+    <!-- Configuration de la base de données H2 -->
+    <jdbc-connection-pool name="PanierPool"
+                          res-type="jakarta.sql.DataSource"
+                          datasource-classname="org.h2.jdbcx.JdbcDataSource">
+        <property name="URL" value="jdbc:h2:mem:panierDB;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"/>
+        <property name="User" value="sa"/>
+        <property name="Password" value=""/>
+    </jdbc-connection-pool>
+
+    <jdbc-resource jndi-name="java:app/PanierDS" pool-name="PanierPool"/>
+</resources>
