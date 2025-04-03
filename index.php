@@ -15,6 +15,7 @@ include_once 'gui/Layout.php';
 include_once 'gui/ViewLogin.php';
 include_once 'gui/ViewError.php';
 include_once 'gui/ViewManageBaskets.php';
+include_once 'gui/ViewCreateBasket.php';
 
 // --- data / JsonAccess ---
 include_once 'data/JsonAccess/JsonUserAccess.php';
@@ -29,7 +30,7 @@ include_once 'control/Presenter.php';
 use control\{Controllers, Presenter};
 use data\JsonAccess\{JsonBasketAccess, JsonUserAccess};
 use service\{AuthentificationManagement, UserCreation};
-use gui\{Layout, ViewLogin, ViewError, ViewManageBaskets};
+use gui\{Layout, ViewLogin, ViewError, ViewManageBaskets,ViewCreateBasket};
 // Session
 session_start();
 
@@ -41,7 +42,7 @@ $controller = new Controllers();
 $userCreation = new UserCreation() ;
 $presenter = new Presenter($dataBaskets);
 // URL demandée
-$uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+$uri =parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
 // Page de connexion
 // Page d'accueil / login
@@ -64,20 +65,46 @@ elseif ($uri == '/index.php/login') {
         exit();
     }
 }
+
 // Page de succès
 // Visualisation des paniers (manager uniquement)
-elseif ($uri == '/index.php/baskets') {
-    if (isset($_SESSION['user']) && $_SESSION['type'] === 'manager') {
+elseif (strpos($uri, '/index.php') === 0 && isset($_SESSION['user']) && $_SESSION['type'] === 'manager') {
+
+    // 🔄 Créer un panier via le contrôleur
+    if ($uri === '/index.php/createBasket' && $_SERVER['REQUEST_METHOD'] === 'GET') {
+        $layout = new Layout("gui/layoutLoggedManager.html");
+
+        $view = new ViewCreateBasket($layout, $_SESSION['user']['email'], $presenter);
+        $view->display();
+
+    }
+
+    // 🗑 Supprimer un panier via le contrôleur
+    elseif ($uri === '/index.php/deleteBasket' && isset($_GET['id'])) {
+        //$controller->deleteBasketAction();
+        header("Location: /index.php/baskets");
+        exit();
+    }
+
+    // ✏ Modifier un panier (réutilise createBasketAction pour remplacement)
+    elseif ($uri === '/index.php/editBasket' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        $controller->createBasketAction($_SESSION['email']);
+        header("Location: /index.php/baskets");
+        exit();
+    }
+
+    // 🧺 Visualiser la liste complète
+    elseif ($uri === '/index.php/baskets') {
         $layout = new Layout("gui/layoutLoggedManager.html");
         $view = new ViewManageBaskets($layout, $_SESSION['user']['email'], $presenter);
         $view->display();
-    } else {
-        $layout = new Layout("gui/layoutUnLogged.html");
-        $viewError = new ViewError($layout, "⛔ Accès interdit", "/index.php");
+    }
+
+    // ❌ URL non reconnue
+    else {
+        $layout = new Layout("gui/layoutLoggedManager.html");
+        $viewError = new ViewError($layout, "❌ URL invalide pour un gestionnaire", "/index.php/baskets");
         $viewError->display();
     }
 }
-// Fallback
-else {
-    echo "<h1>404 Not Found</h1>";
-}
+
