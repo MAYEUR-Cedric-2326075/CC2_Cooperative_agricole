@@ -1,7 +1,7 @@
 [
     {
         "id": "basket-001",
-        "userId": "bob@example.com\"",
+        "userId": "bob@example.com",
         "status": "open",
         "items": [
             {
@@ -13,7 +13,11 @@
                 "quantity": 1
             }
         ],
-        "createdAt": "2025-03-31T14:00:00Z"
+        "createdAt": "2025-03-31T14:00:00Z",
+        "subscribers": [
+            "alice@example.com",
+            "charlie@example.com"
+        ]
     },
     {
         "id": "basket-002",
@@ -25,6 +29,9 @@
                 "quantity": 4
             }
         ],
-        "createdAt": "2025-03-30T09:15:00Z"
+        "createdAt": "2025-03-30T09:15:00Z",
+        "subscribers": [
+            "alice@example.com"
+        ]
     }
 ]

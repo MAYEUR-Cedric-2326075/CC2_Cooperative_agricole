@@ -8,13 +8,15 @@ class Basket {
     private string $status;
     private array $items;
     private string $createdAt;
+    private array $subscribers;
 
-    public function __construct(string $id, string $userId, string $status, array $items, string $createdAt) {
+    public function __construct(string $id, string $userId, string $status, array $items, string $createdAt, array $subscribers = []) {
         $this->id = $id;
         $this->userId = $userId;
         $this->status = $status;
         $this->items = $items;
         $this->createdAt = $createdAt;
+        $this->subscribers = $subscribers;
     }
 
     public function getId(): string {
@@ -37,13 +39,18 @@ class Basket {
         return $this->createdAt;
     }
 
+    public function getSubscribers(): array {
+        return $this->subscribers;
+    }
+
     public function toArray(): array {
         return [
             'id' => $this->id,
             'userId' => $this->userId,
             'status' => $this->status,
             'items' => $this->items,
-            'createdAt' => $this->createdAt
+            'createdAt' => $this->createdAt,
+            'subscribers' => $this->subscribers
         ];
     }
 
@@ -53,7 +60,8 @@ class Basket {
             $data['userId'],
             $data['status'],
             $data['items'],
-            $data['createdAt']
+            $data['createdAt'],
+            $data['subscribers'] ?? []
         );
     }
 }

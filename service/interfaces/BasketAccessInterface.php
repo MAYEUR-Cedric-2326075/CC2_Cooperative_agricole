@@ -28,4 +28,13 @@ interface BasketAccessInterface
      * @return bool
      */
     public function deleteBasketById(string $id): bool;
+
+    /**
+     * Met à jour un panier existant.
+     *
+     * @param string $id
+     * @param array $updatedData
+     * @return bool
+     */
+    public function updateBasket(string $id, array $updatedData): bool;
 }

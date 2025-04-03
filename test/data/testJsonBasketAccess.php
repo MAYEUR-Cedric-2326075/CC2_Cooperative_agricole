@@ -18,9 +18,16 @@ foreach ($baskets as $basket) {
     echo "👤 User: " . $basket->getUserId() . "\n";
     echo "📦 Status: " . $basket->getStatus() . "\n";
     echo "🕓 Created: " . $basket->getCreatedAt() . "\n";
+
     echo "📋 Items:\n";
     foreach ($basket->getItems() as $item) {
         echo "   - Product ID: " . $item['productId'] . ", Quantity: " . $item['quantity'] . "\n";
     }
-    echo "\n";
+
+    echo "👥 Subscribers:\n";
+    foreach ($basket->getSubscribers() as $subscriber) {
+        echo "   - " . $subscriber . "\n";
+    }
+
+    echo str_repeat("-", 30) . "\n";
 }

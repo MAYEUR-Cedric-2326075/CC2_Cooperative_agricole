@@ -14,6 +14,7 @@ class JsonBasketAccess implements BasketAccessInterface {
     public function __construct(string $filePath = __DIR__ . '/../../data/Json/baskets.json') {
         $this->filePath = $filePath;
     }
+
     public function getBasketsByUser(string $email): array {
         $baskets = $this->getAllBaskets();
         $filtered = [];
@@ -26,7 +27,6 @@ class JsonBasketAccess implements BasketAccessInterface {
 
         return $filtered;
     }
-
 
     public function getAllBaskets(): array {
         if (!file_exists($this->filePath)) {
@@ -73,6 +73,22 @@ class JsonBasketAccess implements BasketAccessInterface {
         }
 
         unset($baskets[$id]);
+        $arrayData = array_map(fn($b) => $b->toArray(), $baskets);
+
+        return file_put_contents($this->filePath, json_encode(array_values($arrayData), JSON_PRETTY_PRINT)) !== false;
+    }
+
+    public function updateBasket(string $id, array $updatedData): bool {
+        $baskets = $this->getAllBaskets();
+
+        if (!isset($baskets[$id])) {
+            return false;
+        }
+
+        $existing = $baskets[$id]->toArray();
+        $merged = array_merge($existing, $updatedData);
+        $baskets[$id] = Basket::fromArray($merged);
+
         $arrayData = array_map(fn($b) => $b->toArray(), $baskets);
 
         return file_put_contents($this->filePath, json_encode(array_values($arrayData), JSON_PRETTY_PRINT)) !== false;

@@ -27,11 +27,14 @@ include_once 'data/JsonAccess/JsonProductAccess.php';
 // --- control ---
 include_once 'control/Controllers.php';
 include_once 'control/Presenter.php';
+include_once 'gui/ViewSubscribers.php';
+include_once 'gui/ViewSubscription.php';
 
 use control\{Controllers, Presenter};
 use data\JsonAccess\{JsonBasketAccess, JsonOrderAccess, JsonUserAccess, JsonProductAccess};
 use service\{AuthentificationManagement, UserCreation,BasketService};
-use gui\{Layout, ViewLogin, ViewError, ViewManageBaskets,ViewCreateBasket};
+use gui\{Layout, ViewLogin, ViewError, ViewManageBaskets,ViewCreateBasket,ViewSubscribers,ViewSubscription};
+
 // Session
 session_start();
 
@@ -47,7 +50,7 @@ $presenter = new Presenter($dataBaskets,$dataProducts);
 $basketService = new BasketService($dataBaskets);
 // URL demandée
 $uri =parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-
+//$uri ='/';
 // Page de connexion
 // Page d'accueil / login
 if ( '/' == $uri || '/index.php' == $uri || '/index.php/logout' == $uri) {
@@ -106,6 +109,39 @@ elseif ($uri === '/index.php/deleteBasket' && isset($_GET['id'])) {
     header("Location: /index.php/baskets");
     exit();
 }
+// 🔁 Abonner un utilisateur à un panier
+elseif ($uri === '/index.php/subscribe' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['basketId']) && isset($_SESSION['user']['email'])) {
+        //$basketService->subscribeToBasket($_POST['basketId'], $_SESSION['user']['email']);
+    }
+    header("Location: /index.php/subscriptions");
+    exit();
+}
+
+// 🔁 Désabonner un utilisateur d’un panier
+elseif ($uri === '/index.php/unsubscribe' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['basketId'], $_POST['email'])) {
+        //$basketService->unsubscribeFromBasket($_POST['basketId'], $_POST['email']);
+    }
+    // Redirige vers la page précédente
+    header("Location: " . $_SERVER['HTTP_REFERER']);
+    exit();
+}
+
+// 👁 Voir les abonnés d’un panier (Manager)
+elseif ($uri === '/index.php/subscribers' && isset($_GET['basketId']) && $_SESSION['type'] === 'manager') {
+
+    $layout = new Layout("gui/layoutLoggedManager.html");
+    $view = new ViewSubscribers($layout, $_SESSION['user']['email'], $_GET['basketId'], $presenter);
+    $view->display();
+}
+
+// 👁 Voir ses abonnements (Customer)
+elseif ($uri === '/index.php/subscriptions' && $_SESSION['type'] === 'customer') {
+    $layout = new Layout("gui/layoutLoggedCustomer.html");
+    $view = new ViewSubscription($layout, $_SESSION['user']['email'], $presenter);
+    $view->display();
+}
 // Page de succès
 // Visualisation des paniers (manager uniquement)
 elseif (strpos($uri, '/index.php') === 0 && isset($_SESSION['user']) && $_SESSION['type'] === 'manager') {
@@ -142,8 +178,13 @@ elseif (strpos($uri, '/index.php') === 0 && isset($_SESSION['user']) && $_SESSIO
 
     // ❌ URL non reconnue
     else {
+        /*if(isset($_GET['basketId']))
+            echo"Dog";
+        else
+            echo "Cat";
+        echo $_SESSION['type'];*/
         $layout = new Layout("gui/layoutLoggedManager.html");
-        $viewError = new ViewError($layout, "❌ URL invalide pour un gestionnaire", "/index.php/baskets");
+        $viewError = new ViewError($layout, "❌ URL invalide pour un gestionnaire", "/index.php");
         $viewError->display();
     }
 }

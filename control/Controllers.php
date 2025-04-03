@@ -4,6 +4,7 @@ namespace control;
 
 use service\AuthentificationManagement;
 use service\BasketService;
+use service\SubscriptionService;
 use service\UserCreation;
 use domain\User;
 
@@ -37,5 +38,12 @@ class Controllers {
 
     public function deleteBasketAction(BasketService $basketService, string $id): bool {
         return $basketService->deleteBasket($id);
+    }
+    public function aboSubscribeAction(SubscriptionService $subService, string $customerEmail, string $managerEmail): bool {
+        return $subService->subscribe($customerEmail, $managerEmail);
+    }
+
+    public function aboUnsubscribeAction(SubscriptionService $subService, string $customerEmail, string $managerEmail): bool {
+        return $subService->unsubscribe($customerEmail, $managerEmail);
     }
 }

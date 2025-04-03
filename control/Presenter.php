@@ -22,10 +22,8 @@ class Presenter
 
         $productInputs = '';
         foreach ($products as $product) {
-            $productInputs .= '
-                <label>' . htmlspecialchars($product->getName()) . ' (ID: ' . $product->getId() . ')</label><br>
-                <input type="number" name="quantities[' . $product->getId() . ']" min="0" value="0"><br><br>
-            ';
+            $productInputs .= '<label>' . htmlspecialchars($product->getName()) . ' (ID: ' . $product->getId() . ')</label><br>';
+            $productInputs .= '<input type="number" name="quantities[' . $product->getId() . ']" min="0" value="0"><br><br>';
         }
 
         return <<<HTML
@@ -68,22 +66,22 @@ class Presenter
         }
 
         $content .= '<table border="1" cellpadding="5" cellspacing="0">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Statut</th>
-                <th>Créé le</th>
-                <th>Articles</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>';
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Statut</th>
+            <th>Créé le</th>
+            <th>Articles</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>';
 
         foreach ($baskets as $basket) {
             $content .= '<tr>';
-            $content .= '<td>' . $basket->getId() . '</td>';
-            $content .= '<td>' . $basket->getStatus() . '</td>';
-            $content .= '<td>' . $basket->getCreatedAt() . '</td>';
+            $content .= '<td>' . htmlspecialchars($basket->getId()) . '</td>';
+            $content .= '<td>' . htmlspecialchars($basket->getStatus()) . '</td>';
+            $content .= '<td>' . htmlspecialchars($basket->getCreatedAt()) . '</td>';
 
             $items = '';
             foreach ($basket->getItems() as $item) {
@@ -92,18 +90,23 @@ class Presenter
 
             $content .= '<td>' . $items . '</td>';
             $content .= '<td>
-                <a href="/index.php/editBasket?id=' . $basket->getId() . '">✏ Modifier</a> |
-                <a href="/index.php/deleteBasket?id=' . $basket->getId() . '">🗑 Supprimer</a>
-            </td>';
+            <a href="/index.php/subscribers?basketId=' . urlencode($basket->getId()) . '">👥 Voir abonnés</a><br>
+            <form method="post" action="/index.php/subscribe" style="display:inline;">
+                <input type="hidden" name="basketId" value="' . htmlspecialchars($basket->getId()) . '">
+                <button type="submit">📩 Abonner</button>
+            </form><br>
+            <a href="/index.php/editBasket?id=' . urlencode($basket->getId()) . '">✏ Modifier</a> |
+            <a href="/index.php/deleteBasket?id=' . urlencode($basket->getId()) . '">🗑 Supprimer</a>
+        </td>';
             $content .= '</tr>';
         }
 
         $content .= '</tbody></table>';
-
         $content .= '<p><a href="/index.php/createBasket">➕ Ajouter un nouveau panier</a></p>';
 
         return $content;
     }
+
 
     public function getAllBasketsHTML(): string
     {
@@ -155,5 +158,52 @@ class Presenter
         return $content;
     }
 
+    public function getSubscribersHTML(string $basketId): string
+    {
+        $basket = $this->basketAccess->getBasketById($basketId);
 
+        if (!$basket) {
+            return '<p>❌ Panier non trouvé.</p>';
+        }
+
+        $subscribers = $basket->getSubscribers();
+
+        $content = '<h2>👥 Abonnés du panier</h2>';
+
+        if (empty($subscribers)) {
+            return $content . '<p>Aucun abonné.</p>';
+        }
+
+        $content .= '<ul>';
+        foreach ($subscribers as $email) {
+            $content .= '<li>' . htmlspecialchars($email) . ' 
+            <form method="post" action="/index.php/unsubscribe" style="display:inline;">
+                <input type="hidden" name="basketId" value="' . htmlspecialchars($basketId) . '">
+                <input type="hidden" name="email" value="' . htmlspecialchars($email) . '">
+                <button type="submit">🚫 Désabonner</button>
+            </form>
+        </li>';
+        }
+        $content .= '</ul>';
+
+        return $content;
+    }
+
+
+    public function getSubscriptionsHTML(array $baskets): string
+    {
+        $content = '<h2>📩 Vos abonnements</h2>';
+
+        if (empty($baskets)) {
+            return $content . '<p>Aucun abonnement.</p>';
+        }
+
+        $content .= '<ul>';
+        foreach ($baskets as $basket) {
+            $content .= '<li>' . htmlspecialchars($basket->getId()) . ' (Statut : ' . htmlspecialchars($basket->getStatus()) . ')</li>';
+        }
+        $content .= '</ul>';
+
+        return $content;
+    }
 }

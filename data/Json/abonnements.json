@@ -1,0 +1,22 @@
+[
+    {
+        "manager": "alice.manager@example.com",
+        "subscriber": "bob.customer@example.com"
+    },
+    {
+        "manager": "alice.manager@example.com",
+        "subscriber": "carol.customer@example.com"
+    },
+    {
+        "manager": "dorian.manager@example.com",
+        "subscriber": "bob.customer@example.com"
+    },
+    {
+        "manager": "dorian.manager@example.com",
+        "subscriber": "eve.customer@example.com"
+    },
+    {
+        "manager": "alice.manager@example.com",
+        "subscriber": "eve.customer@example.com"
+    }
+]
